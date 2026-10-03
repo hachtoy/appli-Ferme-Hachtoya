@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Ferme Hachtoya</title>
+<style>
+:root {
+  --vert:       #2D6A4F;
+  --vert2:      #40916C;
+  --vert-pale:  #D8F3DC;
+  --vert-clair: #52B788;
+  --terre:      #8B5E3C;
+  --terre-pale: #F5EDE4;
+  --ciel:       #F0F7F4;
+  --texte:      #1C2B22;
+  --gris:       #6B7280;
+  --border:     #C8DDD3;
+  --blanc:      #FFFFFF;
+  --orange:     #E07B39;
+  --orange-pale:#FEF3C7;
+  --rouge:      #C0392B;
+  --bleu:       #3A86FF;
+  --bleu-pale:  #DBEAFE;
+  --jaune:      #F4D03F;
+  --safe-top:   env(safe-area-inset-top, 0px);
+  --safe-bot:   env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--ciel); color: var(--texte); font-size: 16px; }
+
+/* ── HEADER ── */
+header {
+  background: var(--vert);
+  padding: calc(var(--safe-top) + 12px) 16px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+header h1 { color: #fff; font-size: 17px; font-weight: 700; }
+.header-date { color: rgba(255,255,255,0.75); font-size: 12px; }
+
+/* ── NAV BOTTOM ── */
+.nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--blanc);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding-bottom: var(--safe-bot);
+  z-index: 100;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 8px 2px 6px;
+  font-size: 10px; color: var(--gris);
+  cursor: pointer; gap: 3px;
+  transition: color .15s;
+}
+.nav-item .icon { font-size: 22px; line-height: 1; }
+.nav-item.active { color: var(--vert); font-weight: 700; }
+
+/* ── PAGES ── */
+.page { display: none; padding: 14px 14px calc(var(--safe-bot) + 74px); }
+.page.active { display: block; }
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+  color: var(--vert); text-transform: uppercase;
+  margin: 18px 0 8px;
+}
+.section-label:first-child { margin-top: 0; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--blanc); border-radius: 14px;
+  padding: 14px; margin-bottom: 10px;
+  border: 1.5px solid var(--border);
+}
+.card-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.card-sub { font-size: 12px; color: var(--gris); }
+
+/* ── MODULE TILES (home) ── */
+.module-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.module-tile {
+  background: var(--blanc); border-radius: 14px;
+  padding: 18px 14px; border: 1.5px solid var(--border);
+  cursor: pointer; transition: transform .1s, border-color .15s;
+  text-align: center;
+}
+.module-tile:active { transform: scale(0.97); border-color: var(--vert-clair); }
+.module-tile .m-icon { font-size: 32px; margin-bottom: 8px; }
+.module-tile .m-label { font-size: 13px; font-weight: 700; color: var(--texte); }
+.module-tile .m-status { font-size: 11px; color: var(--gris); margin-top: 4px; }
+.module-tile.ready { border-color: var(--vert-clair); }
+.module-tile.ready .m-label { color: var(--vert); }
+
+/* ── FORM FIELDS ── */
+.field { margin-bottom: 10px; }
+.field label { display: block; font-size: 12px; font-weight: 600; color: var(--gris); margin-bottom: 4px; }
+.field input, .field select, .field textarea {
+  width: 100%; padding: 12px 14px;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 16px; background: var(--blanc); color: var(--texte);
+  appearance: none; -webkit-appearance: none; outline: none;
+  transition: border-color .15s;
+}
+.field input:focus, .field select:focus { border-color: var(--vert-clair); }
+.field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+}
+
+/* ── TOGGLE CHECKS (fabrique) ── */
+.aliment-toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.aliment-toggle {
+  background: var(--ciel); border: 2px solid var(--border);
+  border-radius: 12px; padding: 12px 10px;
+  text-align: center; cursor: pointer; transition: all .15s;
+}
+.aliment-toggle.selected {
+  background: var(--vert-pale); border-color: var(--vert);
+}
+.aliment-toggle .a-icon { font-size: 22px; }
+.aliment-toggle .a-label { font-size: 13px; font-weight: 700; margin-top: 4px; }
+.aliment-toggle .a-kg { font-size: 11px; color: var(--gris); margin-top: 2px; }
+.aliment-toggle.selected .a-kg { color: var(--vert); }
+
+/* ── INGREDIENTS PREVIEW ── */
+.ingredients-grid {
+  background: var(--vert-pale); border-radius: 12px;
+  padding: 12px; margin-bottom: 12px;
+}
+.ing-row {
+  display: flex; justify-content: space-between;
+  padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,0.06);
+  font-size: 13px;
+}
+.ing-row:last-child { border-bottom: none; }
+.ing-row .ing-name { color: var(--texte); font-weight: 600; }
+.ing-row .ing-kg { color: var(--vert); font-weight: 700; }
+
+/* ── BILAN TABLE ── */
+.bilan-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.bilan-table th {
+  background: var(--vert); color: #fff;
+  padding: 8px 6px; text-align: left;
+  font-size: 11px; letter-spacing: 0.3px;
+}
+.bilan-table td { padding: 8px 6px; border-bottom: 1px solid var(--border); }
+.bilan-table tr:nth-child(even) td { background: var(--vert-pale); }
+.bilan-table .total { font-weight: 700; color: var(--vert); }
+
+/* ── HISTORIQUE ── */
+.entry-card {
+  background: var(--blanc); border-radius: 12px;
+  padding: 12px 14px; margin-bottom: 8px;
+  border-left: 4px solid var(--vert-clair);
+}
+.entry-card.pending { border-left-color: var(--orange); }
+.entry-date { font-size: 12px; color: var(--gris); font-weight: 600; }
+.entry-title { font-size: 14px; font-weight: 700; margin: 2px 0 4px; }
+.entry-meta { font-size: 12px; color: var(--gris); }
+.status-badge {
+  display: inline-block; font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px; float: right;
+}
+.status-badge.pending { background: var(--orange-pale); color: #92400E; }
+.status-badge.synced { background: var(--vert-pale); color: var(--vert); }
+
+/* ── BOUTONS ── */
+.btn-primary {
+  width: 100%; padding: 15px; background: var(--vert); color: #fff;
+  border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+  cursor: pointer; margin-top: 16px; transition: background .15s, transform .1s;
+}
+.btn-primary:active { transform: scale(0.98); background: var(--vert-clair); }
+.btn-secondary {
+  width: 100%; padding: 13px; background: var(--blanc); color: var(--vert);
+  border: 2px solid var(--vert); border-radius: 12px; font-size: 14px;
+  font-weight: 700; cursor: pointer; margin-top: 8px;
+}
+
+/* ── ACCORDÉONS ── */
+.accord { background: var(--blanc); border-radius: 12px; margin: 7px 0; border: 1.5px solid var(--border); overflow: hidden; }
+.accord-hdr { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; cursor: pointer; font-size: 14px; font-weight: 700; }
+.accord-hdr .chev { transition: transform .2s; color: var(--gris); }
+.accord-hdr.open .chev { transform: rotate(180deg); }
+.accord-body { display: none; padding: 0 12px 12px; }
+.accord-body.open { display: block; }
+.accord-add { display: flex; gap: 8px; margin-bottom: 8px; }
+.accord-add input { flex: 1; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 15px; outline: none; }
+.accord-add input.sm { flex: 0 0 80px; }
+.accord-add button { padding: 10px 14px; background: var(--vert); color: #fff; border: none; border-radius: 10px; font-size: 20px; cursor: pointer; }
+.list-item { display: flex; align-items: center; padding: 9px 10px; border-radius: 8px; margin-bottom: 5px; background: var(--ciel); gap: 8px; }
+.list-item .nom { flex: 1; font-size: 13px; font-weight: 600; }
+.list-item .val { font-size: 12px; color: var(--vert); font-weight: 700; }
+.list-item .del { background: none; border: none; font-size: 16px; cursor: pointer; color: var(--rouge); padding: 0 2px; }
+
+/* ── FORMULE EDITOR ── */
+.formule-editor { background: var(--ciel); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+.formule-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.formule-row label { flex: 1; font-size: 13px; font-weight: 600; }
+.formule-row input { width: 80px; padding: 8px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; text-align: right; outline: none; }
+.formule-row .unit { font-size: 12px; color: var(--gris); width: 20px; }
+.formule-total { font-size: 12px; font-weight: 700; text-align: right; color: var(--vert); }
+
+/* ── SYNC BAR ── */
+.sync-bar { background: var(--orange); color: #fff; padding: 10px 16px; font-size: 13px; font-weight: 600; display: none; align-items: center; justify-content: space-between; }
+.sync-bar.visible { display: flex; }
+.sync-bar button { background: rgba(255,255,255,0.25); border: none; color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: calc(var(--safe-bot) + 80px); left: 50%; transform: translateX(-50%) translateY(80px); background: var(--texte); color: #fff; padding: 12px 20px; border-radius: 24px; font-size: 14px; font-weight: 600; z-index: 200; transition: transform .3s ease; white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { background: var(--vert); }
+.toast.error { background: var(--rouge); }
+
+/* ── EMPTY STATE ── */
+.empty { text-align: center; padding: 40px 20px; color: var(--gris); }
+.empty .icon { font-size: 40px; margin-bottom: 12px; }
+.empty p { font-size: 14px; }
+
+/* ── STAT CHIPS ── */
+.stat-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.stat-chip { flex: 1; min-width: 80px; background: var(--blanc); border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 8px; text-align: center; }
+.stat-chip .sv { font-size: 20px; font-weight: 800; color: var(--vert); }
+.stat-chip .sl { font-size: 10px; color: var(--gris); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <img src="data:image/png;base64,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"
+         alt="Logo Ferme Hachtoy"
+         style="height:36px;width:36px;object-fit:contain;filter:brightness(0) invert(1);">
+    <h1>Ferme Hachtoya</h1>
+  </div>
+  <span class="header-date" id="headerDate"></span>
+</header>
+
+<div class="sync-bar" id="syncBar">
+  <span id="syncText">Entrées non synchronisées</span>
+  <button onclick="syncAll()">Sync</button>
+</div>
+
+<!-- ══════════ PAGE ACCUEIL ══════════ -->
+<div class="page active" id="page-home">
+  <div class="section-label">📊 Tableau de bord</div>
+  <div class="stat-row" id="home-stats"></div>
+
+  <div class="section-label">🗂 Modules</div>
+  <div class="module-grid">
+    <div class="module-tile ready" onclick="goModule('travaux')">
+      <div class="m-icon">🚜</div>
+      <div class="m-label">Travaux des champs</div>
+      <div class="m-status" id="tile-travaux">—</div>
+    </div>
+    <div class="module-tile" onclick="goModule('troupeau')">
+      <div class="m-icon">🐂</div>
+      <div class="m-label">Troupeau</div>
+      <div class="m-status">À venir</div>
+    </div>
+    <div class="module-tile ready" onclick="goModule('fabrique')">
+      <div class="m-icon">🌽</div>
+      <div class="m-label">Fabrique d'aliment</div>
+      <div class="m-status" id="tile-fabrique">—</div>
+    </div>
+    <div class="module-tile" onclick="goModule('paturage')">
+      <div class="m-icon">🌿</div>
+      <div class="m-label">Pâturage tournant</div>
+      <div class="m-status">À venir</div>
+    </div>
+    <div class="module-tile ready" onclick="goModule('fourrager')">
+      <div class="m-icon">🌾</div>
+      <div class="m-label">Bilan fourrager</div>
+      <div class="m-status" id="tile-fourrager">—</div>
+    </div>
+    <div class="module-tile" onclick="goModule('materiel')">
+      <div class="m-icon">🔧</div>
+      <div class="m-label">Matériel</div>
+      <div class="m-status">À venir</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE TRAVAUX ══════════ -->
+<div class="page" id="page-travaux">
+
+  <!-- Sous-onglets -->
+  <div style="display:flex;gap:8px;margin-bottom:14px;">
+    <button class="fab-tab active" id="ttab-saisie" onclick="travTab('saisie')">✏️ Saisie</button>
+    <button class="fab-tab" id="ttab-historique" onclick="travTab('historique')">📋 Historique</button>
+    <button class="fab-tab" id="ttab-config" onclick="travTab('config')">⚙️ Config</button>
+  </div>
+
+  <!-- SAISIE TRAVAUX -->
+  <div id="trav-saisie">
+    <div class="section-label">📅 Date</div>
+    <div class="field"><input type="date" id="t-date"></div>
+
+    <div class="section-label">🌿 Parcelles</div>
+    <div class="field"><label>Parcelle 1</label><select id="t-parc1" onchange="calcSurfaceTrav()"><option value="">— choisir —</option></select></div>
+    <div class="field"><label>Parcelle 2 (optionnel)</label><select id="t-parc2" onchange="calcSurfaceTrav()"><option value="">—</option></select></div>
+    <div class="field"><label>Parcelle 3 (optionnel)</label><select id="t-parc3" onchange="calcSurfaceTrav()"><option value="">—</option></select></div>
+    <div class="field">
+      <label>Surface calculée (Ha)</label>
+      <input type="text" id="t-surface" readonly placeholder="calculé automatiquement" style="background:var(--vert-pale);border-color:var(--vert-clair);color:var(--vert);font-weight:700;">
+    </div>
+
+    <div class="section-label">🚜 Travaux</div>
+    <div class="field"><label>Culture</label><select id="t-culture"><option value="">— choisir —</option></select></div>
+    <div class="field"><label>Intervention</label><select id="t-intervention"><option value="">— choisir —</option></select></div>
+    <div class="field"><label>Outil</label><select id="t-outil"><option value="">— choisir —</option></select></div>
+    <div class="field"><label>Chauffeur</label><select id="t-chauffeur"><option value="">— choisir —</option></select></div>
+
+    <div class="section-label">🌱 Produit / Apport (optionnel)</div>
+    <div class="field"><label>Type d'apport</label><select id="t-apport"><option value="">—</option></select></div>
+    <div class="field"><label>Produit / Variété</label><select id="t-produit"><option value="">—</option></select></div>
+    <div class="field"><label>Quantité / Ha</label><input type="number" id="t-qteha" step="0.01" placeholder="0"></div>
+    <div class="field"><label>Unité</label><select id="t-unite"><option value="">—</option></select></div>
+
+    <div class="section-label">🌾 Récolte (optionnel)</div>
+    <div class="field"><label>Tonnes récoltées</label><input type="number" id="t-tonnes" step="0.1" placeholder="0"></div>
+
+    <button class="btn-primary" onclick="enregistrerTravaux()">✅ Enregistrer</button>
+  </div>
+
+  <!-- HISTORIQUE TRAVAUX -->
+  <div id="trav-historique" style="display:none;">
+    <div id="travaux-hist-list"></div>
+  </div>
+
+  <!-- CONFIG TRAVAUX -->
+  <div id="trav-config" style="display:none;">
+    <div class="section-label">🔗 Sync Google Sheets</div>
+    <div class="field">
+      <label>URL Apps Script (Travaux)</label>
+      <input type="url" id="trav-gas-url" placeholder="https://script.google.com/macros/s/…/exec">
+    </div>
+    <button class="btn-secondary" onclick="saveTravConfig()">💾 Enregistrer</button>
+
+    <div id="trav-accord-container" style="margin-top:16px;"></div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE FABRIQUE ══════════ -->
+<div class="page" id="page-fabrique">
+
+  <!-- Sous-onglets -->
+  <div style="display:flex;gap:8px;margin-bottom:14px;">
+    <button class="fab-tab active" id="ftab-saisie" onclick="fabTab('saisie')">✏️ Saisie</button>
+    <button class="fab-tab" id="ftab-bilan" onclick="fabTab('bilan')">📊 Bilan</button>
+    <button class="fab-tab" id="ftab-config" onclick="fabTab('config')">⚙️ Formules</button>
+  </div>
+  <style>
+    .fab-tab { flex:1; padding:10px 0; border:2px solid var(--border); border-radius:10px; background:var(--blanc); font-size:13px; font-weight:700; color:var(--gris); cursor:pointer; }
+    .fab-tab.active { border-color:var(--vert); color:var(--vert); background:var(--vert-pale); }
+  </style>
+
+  <!-- SAISIE -->
+  <div id="fab-saisie">
+    <div class="section-label">📅 Date de fabrication</div>
+    <div class="field"><input type="date" id="fab-date"></div>
+
+    <div class="section-label">🏭 Aliments fabriqués</div>
+    <div class="aliment-toggles" id="aliment-toggles"></div>
+
+    <div class="section-label">📦 Matières premières utilisées</div>
+    <div class="ingredients-grid" id="fab-ingredients">
+      <div style="text-align:center;color:var(--gris);font-size:13px;padding:8px;">Sélectionne un ou plusieurs aliments</div>
+    </div>
+
+    <button class="btn-primary" onclick="enregistrerFabrique()">✅ Enregistrer</button>
+  </div>
+
+  <!-- BILAN -->
+  <div id="fab-bilan" style="display:none;">
+    <div class="section-label">📅 Période</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <div class="field" style="flex:1;margin:0;">
+        <select id="bilan-mois" onchange="renderBilan()">
+          <option value="all">Toute l'année</option>
+          <option value="0">Janvier</option><option value="1">Février</option>
+          <option value="2">Mars</option><option value="3">Avril</option>
+          <option value="4">Mai</option><option value="5">Juin</option>
+          <option value="6">Juillet</option><option value="7">Août</option>
+          <option value="8">Septembre</option><option value="9">Octobre</option>
+          <option value="10">Novembre</option><option value="11">Décembre</option>
+        </select>
+      </div>
+      <div class="field" style="flex:1;margin:0;">
+        <select id="bilan-annee" onchange="renderBilan()"></select>
+      </div>
+    </div>
+    <div id="bilan-content"></div>
+  </div>
+
+  <!-- CONFIG FORMULES -->
+  <div id="fab-config" style="display:none;">
+    <div class="section-label">🔗 Sync Google Sheets</div>
+    <div class="field">
+      <label>URL Apps Script (Fabrique)</label>
+      <input type="url" id="fab-gas-url" placeholder="https://script.google.com/macros/s/…/exec">
+    </div>
+    <button class="btn-secondary" onclick="saveFabConfig()">💾 Enregistrer l'URL</button>
+
+    <div class="section-label" style="margin-top:20px;">🧮 Modifier les formules (% par ingrédient)</div>
+    <p style="font-size:12px;color:var(--gris);margin-bottom:12px;">Les pourcentages doivent totaliser 100%. La quantité totale par batch est également modifiable.</p>
+    <div id="formules-editor"></div>
+    <button class="btn-primary" onclick="sauvegarderFormules()">💾 Sauvegarder les formules</button>
+  </div>
+</div>
+
+<!-- ══════════ PAGES À VENIR ══════════ -->
+<div class="page" id="page-troupeau">
+  <div class="empty"><div class="icon">🐄</div><p>Module Troupeau<br>En cours de construction</p></div>
+</div>
+<div class="page" id="page-paturage">
+  <div class="empty"><div class="icon">🌿</div><p>Module Pâturage tournant<br>En cours de construction</p></div>
+</div>
+<div class="page" id="page-fourrager">
+
+  <!-- Sous-onglets -->
+  <div style="display:flex;gap:8px;margin-bottom:14px;">
+    <button class="fab-tab active" id="ftab-f-saisie"  onclick="fourTab('saisie')">✏️ Saisie</button>
+    <button class="fab-tab"        id="ftab-f-stock"   onclick="fourTab('stock')">📦 Stock</button>
+    <button class="fab-tab"        id="ftab-f-config"  onclick="fourTab('config')">⚙️ Config</button>
+  </div>
+
+  <!-- SAISIE -->
+  <div id="four-saisie">
+    <div class="section-label">📅 Date de l'inventaire</div>
+    <div class="field"><input type="date" id="four-date"></div>
+
+    <div class="section-label">🌾 Foin</div>
+    <div class="field"><label>Boules rondes 150 (nb)</label><input type="number" id="four-foin-rondes" placeholder="0" min="0"></div>
+    <div class="field"><label>Boules rondes achetées (nb)</label><input type="number" id="four-foin-achete" placeholder="0" min="0"></div>
+    <div class="field"><label>Bottes carrées (nb)</label><input type="number" id="four-foin-carrees" placeholder="0" min="0"></div>
+
+    <div class="section-label">🎁 Enrubannés</div>
+    <div class="field"><label>Couloir droite (nb)</label><input type="number" id="four-enrub-droite" placeholder="0" min="0"></div>
+    <div class="field"><label>Couloir gauche (nb)</label><input type="number" id="four-enrub-gauche" placeholder="0" min="0"></div>
+    <div class="field"><label>Petit couloir (nb)</label><input type="number" id="four-enrub-petit" placeholder="0" min="0"></div>
+
+    <div class="section-label">🌱 Autres fourrages</div>
+    <div class="field"><label>Sorgho (nb)</label><input type="number" id="four-sorgho" placeholder="0" min="0"></div>
+    <div class="field"><label>Luzerne (nb)</label><input type="number" id="four-luzerne" placeholder="0" min="0"></div>
+
+    <div class="section-label">🌿 Paille</div>
+    <div class="field"><label>Bottes rondes (nb)</label><input type="number" id="four-paille-rondes" placeholder="0" min="0"></div>
+    <div class="field"><label>Bottes carrées (nb)</label><input type="number" id="four-paille-carrees" placeholder="0" min="0"></div>
+
+    <div class="field" style="margin-top:8px;">
+      <label>Observations (optionnel)</label>
+      <textarea id="four-obs" rows="2" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;outline:none;resize:none;" placeholder="Notes..."></textarea>
+    </div>
+
+    <button class="btn-primary" onclick="enregistrerFourrager()">✅ Enregistrer le stock</button>
+  </div>
+
+  <!-- STOCK ACTUEL -->
+  <div id="four-stock" style="display:none;">
+    <div id="four-stock-content">
+      <div class="empty"><div class="icon">📦</div><p>Aucun inventaire enregistré</p></div>
+    </div>
+  </div>
+
+  <!-- CONFIG -->
+  <div id="four-config" style="display:none;">
+    <div class="section-label">🔗 Sync Google Sheets</div>
+    <div class="field">
+      <label>URL Apps Script (Fourrager)</label>
+      <input type="url" id="four-gas-url" placeholder="https://script.google.com/macros/s/…/exec">
+    </div>
+    <button class="btn-secondary" onclick="saveFourConfig()">💾 Enregistrer l'URL</button>
+
+    <div class="section-label" style="margin-top:20px;">📏 Capacités max par catégorie</div>
+    <p style="font-size:12px;color:var(--gris);margin-bottom:12px;">Renseigne les capacités max pour afficher les barres de progression.</p>
+
+    <div style="font-size:11px;font-weight:700;color:var(--vert);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 6px;">🌾 Foin</div>
+    <div class="field"><label>Boules rondes 150 (max)</label><input type="number" id="four-max-foin-rondes" placeholder="0" min="0"></div>
+    <div class="field"><label>Boules rondes achetées (max)</label><input type="number" id="four-max-foin-achete" placeholder="0" min="0"></div>
+    <div class="field"><label>Bottes carrées (max)</label><input type="number" id="four-max-foin-carrees" placeholder="0" min="0"></div>
+
+    <div style="font-size:11px;font-weight:700;color:var(--vert);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 6px;">🎁 Enrubannés</div>
+    <div class="field"><label>Couloir droite (max)</label><input type="number" id="four-max-enrub-droite" placeholder="100" min="0"></div>
+    <div class="field"><label>Couloir gauche (max)</label><input type="number" id="four-max-enrub-gauche" placeholder="100" min="0"></div>
+    <div class="field"><label>Petit couloir (max)</label><input type="number" id="four-max-enrub-petit" placeholder="50" min="0"></div>
+
+    <div style="font-size:11px;font-weight:700;color:var(--vert);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 6px;">🌱 Autres fourrages</div>
+    <div class="field"><label>Sorgho (max)</label><input type="number" id="four-max-sorgho" placeholder="0" min="0"></div>
+    <div class="field"><label>Luzerne (max)</label><input type="number" id="four-max-luzerne" placeholder="0" min="0"></div>
+
+    <div style="font-size:11px;font-weight:700;color:var(--vert);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 6px;">🌿 Paille</div>
+    <div class="field"><label>Bottes rondes (max)</label><input type="number" id="four-max-paille-rondes" placeholder="0" min="0"></div>
+    <div class="field"><label>Bottes carrées (max)</label><input type="number" id="four-max-paille-carrees" placeholder="0" min="0"></div>
+
+    <button class="btn-secondary" onclick="saveFourCapacites()">💾 Enregistrer les capacités</button>
+  </div>
+</div>
+<div class="page" id="page-materiel">
+  <div class="empty"><div class="icon">🔧</div><p>Module Matériel<br>En cours de construction</p></div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-item active" onclick="showPage('home',this)"><span class="icon">🏠</span>Accueil</div>
+  <div class="nav-item" onclick="showPage('travaux',this)"><span class="icon">🚜</span>Travaux</div>
+  <div class="nav-item" onclick="showPage('fabrique',this)"><span class="icon">🌽</span>Fabrique</div>
+  <div class="nav-item" onclick="showPage('troupeau',this)"><span class="icon">🐂</span>Troupeau</div>
+  <div class="nav-item" onclick="showPage('fourrager',this)"><span class="icon">🌾</span>Fourrager</div>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  FORMULES PAR DÉFAUT (issues du fichier Sheets)
+// ══════════════════════════════════════════
+const FORMULES_DEFAULT = {
+  demarrage: {
+    label: 'Démarrage',
+    icon: '🌱',
+    batch: 348,  // kg par fabrication
+    ingredients: {
+      mais:    0.439,
+      soja:    0.244,
+      feverole:0.130,
+      meteil:  0.163,
+      mineral: 0.024
+    }
+  },
+  finition: {
+    label: 'Finition',
+    icon: '🌾',
+    batch: 348,
+    ingredients: {
+      mais:    0.544,
+      soja:    0.216,
+      feverole:0.096,
+      meteil:  0.120,
+      mineral: 0.024
+    }
+  },
+  veau: {
+    label: 'Veau',
+    icon: '🐮',
+    batch: 350,
+    ingredients: {
+      mais:    0.670,
+      soja:    0.307,
+      feverole:0.000,
+      meteil:  0.000,
+      mineral: 0.023
+    }
+  },
+  broutard: {
+    label: 'Broutard',
+    icon: '🐂',
+    batch: 350,
+    ingredients: {
+      mais:    0.370,
+      soja:    0.300,
+      feverole:0.100,
+      meteil:  0.205,
+      mineral: 0.025
+    }
+  }
+};
+
+const INGREDIENTS = ['mais','soja','feverole','meteil','mineral'];
+const ING_LABELS = { mais:'Maïs', soja:'Soja', feverole:'Féverole', meteil:'Méteil céréales', mineral:'Minéral' };
+
+// ══════════════════════════════════════════
+//  STOCKAGE
+// ══════════════════════════════════════════
+function getFormules() {
+  try {
+    const s = localStorage.getItem('formules');
+    return s ? JSON.parse(s) : JSON.parse(JSON.stringify(FORMULES_DEFAULT));
+  } catch(e) { return JSON.parse(JSON.stringify(FORMULES_DEFAULT)); }
+}
+
+function getFabEntries() {
+  try { return JSON.parse(localStorage.getItem('fab_entries') || '[]'); } catch(e) { return []; }
+}
+function saveFabEntries(e) { localStorage.setItem('fab_entries', JSON.stringify(e)); }
+
+function getTravauxEntries() {
+  try { return JSON.parse(localStorage.getItem('travaux') || '[]'); } catch(e) { return []; }
+}
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+let currentPage = 'home';
+
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  currentPage = name;
+  if (name === 'home') renderHome();
+  if (name === 'fabrique') initFabrique();
+  if (name === 'travaux') initTravaux();
+  if (name === 'fourrager') initFourrager();
+}
+
+function goModule(name) {
+  const navItems = document.querySelectorAll('.nav-item');
+  const map = { travaux:1, troupeau:3, fabrique:2, paturage:4 };
+  showPage(name, navItems[map[name] || 0]);
+}
+
+// ══════════════════════════════════════════
+//  PAGE ACCUEIL
+// ══════════════════════════════════════════
+function renderHome() {
+  // Date header
+  const now = new Date();
+  document.getElementById('headerDate').textContent =
+    now.toLocaleDateString('fr-FR', { weekday:'short', day:'numeric', month:'long' });
+
+  // Stats
+  const fab = getFabEntries();
+  const travaux = getTravauxEntries();
+  const thisMonth = fab.filter(e => {
+    const d = new Date(e.date);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+
+  let maisTotal = 0;
+  thisMonth.forEach(e => { maisTotal += (e.totaux.mais || 0); });
+
+  document.getElementById('home-stats').innerHTML = `
+    <div class="stat-chip"><div class="sv">${fab.length}</div><div class="sl">Fabrications</div></div>
+    <div class="stat-chip"><div class="sv">${thisMonth.length}</div><div class="sl">Ce mois</div></div>
+    <div class="stat-chip"><div class="sv">${Math.round(maisTotal)}</div><div class="sl">kg Maïs/mois</div></div>
+    <div class="stat-chip"><div class="sv">${travaux.length}</div><div class="sl">Travaux</div></div>
+  `;
+
+  // Tiles status
+  const lastFab = fab[0];
+  document.getElementById('tile-fabrique').textContent = lastFab
+    ? 'Dernier : ' + new Date(lastFab.date + 'T12:00').toLocaleDateString('fr-FR', {day:'numeric',month:'short'})
+    : 'Aucune entrée';
+
+  const lastTrav = travaux[0];
+  document.getElementById('tile-travaux').textContent = lastTrav
+    ? 'Dernier : ' + new Date(lastTrav.date + 'T12:00').toLocaleDateString('fr-FR', {day:'numeric',month:'short'})
+    : 'Aucune entrée';
+
+  const four = getFourEntries();
+  const lastFour = four[0];
+  const tileF = document.getElementById('tile-fourrager');
+  if (tileF) tileF.textContent = lastFour
+    ? 'Inventaire : ' + new Date(lastFour.date + 'T12:00').toLocaleDateString('fr-FR', {day:'numeric',month:'short'})
+    : 'Aucun inventaire';
+}
+
+// ══════════════════════════════════════════
+//  DONNÉES TRAVAUX
+// ══════════════════════════════════════════
+const TRAV_DATA = {
+  parcelles: ["Etcheaintzina","Lac","Kutch gauche","kutch g luzerne","Charritte chp1","Charritte chp2","Charritte chp3","Charritte chp4","Charritte chp3/4 herbe","Charritte chp5","Ehule","Domezainette","Gilbert","Duro","Elichabid","Minardia","Etchegelan","Pekoldia","Pekoldia foin","Prixint","Ahizar","Bazkeia","Bazkeia petite prairie","Bazkeia grande prairie","Berho bazkeia","Berho prairie du fond","Berho Chilindro","Prairie foin","chene","pente gauche","gel","cabane","Hangar","petit carré","Bois","pente coté bois","Borne","Triangle","Gel","pente Esker Ahizar","Esker Ahizar","Prairie maïs","Artchenania","Kutch droit","Diemenborda","Verges","Etchalus"],
+  cultures: ["prairie","maïs","soja","meteils","luzerne","sorgho","teff","Meteils fourragers","couvert vegetal","soja + Niebe","paille","Miscanthus"],
+  interventions: ["preparation sol","semis","desherbage","nettoyage","fertilisation","foin","recolte","Drainer","traitement vers gris"],
+  outils: ["Rotavator","Dynadrive","Disque","rouleau","Épandeur fumier","Épandeur engrais","Charrue","Decompacteur","Herse","Herse etrille","Houe rotative","Bineuse","Cultipaker","Broyeur","Faucheuse","Pirouette","Andaineur","Roundballeur","Quad semoir","Semoir monograine","Semoir agram","Semoir nodet","Batteuse","Combiné herse semoir","Combiné herse cultipaker","Vibro","Pulvé","Dp12","Bourgoin","Autochargeuse","Motofaucheuse","Plateau fourrager","Herse de prairie","Pirouette x2","Pirouette x3","Soussoleuse cuma"],
+  chauffeurs: ["Moi","Claude","Thomas","Clément","Cuma","Suhit","Iratcabal"],
+  apports: ["semences","fertilisation","fumier","protection vegetaux"],
+  produits: ["mélange suisse","p900","Adelfia","Altona","Bacteriosol","10 0 0","wellow teff","9_5_0","Melange mass","STARTER","feverole","Adelfia/Altona","Kieserite","Bore Molybdene","Mélange luzerne trèfle RGA","Sulfate magnésium","Fumier bovin","izzli / DK 5001","Altona / Adelphia","6/10/0","Mezalid","chaux carriere"],
+  unites: ["Tonnes","Kg","Doses","Grains","boules","Litres"],
+  surfaces: {"Etcheaintzina":7.3,"Lac":3.3,"Kutch gauche":1.1,"kutch g luzerne":1.0,"Charritte chp1":1.4,"Charritte chp2":4.0,"Charritte chp3":2.0,"Charritte chp4":2.37,"Charritte chp3/4 herbe":1.0,"Charritte chp5":2.5,"Ehule":3.14,"Domezainette":2.0,"Gilbert":1.8,"Duro":1.88,"Elichabid":2.0,"Minardia":1.8,"Etchegelan":1.6,"Pekoldia":1.5,"Pekoldia foin":2.0,"Prixint":1.21,"Ahizar":1.14,"Bazkeia":2.0,"Bazkeia petite prairie":0.8,"Bazkeia grande prairie":1.8,"Berho bazkeia":1.0,"Berho prairie du fond":0.8,"Berho Chilindro":1.35,"Prairie foin":1.5,"chene":3.0,"pente gauche":1.5,"gel":0.48,"cabane":4.6,"Hangar":2.62,"petit carré":0.44,"Bois":1.21,"pente coté bois":0.67,"Borne":1.62,"Triangle":0.76,"Gel":0.64,"pente Esker Ahizar":0.45,"Esker Ahizar":1.5,"Prairie maïs":3.0,"Artchenania":0.5,"Kutch droit":1.3,"Diemenborda":0.7,"Verges":0.7,"Etchalus":4.32}
+};
+
+function populateTrav(id, list) {
+  const sel = document.getElementById(id);
+  const first = sel.options[0];
+  sel.innerHTML = '';
+  sel.appendChild(first);
+  list.forEach(v => {
+    const o = document.createElement('option');
+    o.value = o.textContent = v;
+    sel.appendChild(o);
+  });
+}
+
+function initTravaux() {
+  document.getElementById('t-date').value = new Date().toISOString().split('T')[0];
+  // Charger listes perso si dispo
+  const savedParc = localStorage.getItem('list_parcelles');
+  if (savedParc) {
+    const obj = JSON.parse(savedParc);
+    TRAV_DATA.parcelles = Object.keys(obj);
+    Object.assign(TRAV_DATA.surfaces, obj);
+  }
+  populateTrav('t-parc1', TRAV_DATA.parcelles);
+  populateTrav('t-parc2', TRAV_DATA.parcelles);
+  populateTrav('t-parc3', TRAV_DATA.parcelles);
+  populateTrav('t-culture', TRAV_DATA.cultures);
+  populateTrav('t-intervention', TRAV_DATA.interventions);
+  populateTrav('t-outil', TRAV_DATA.outils);
+  populateTrav('t-chauffeur', TRAV_DATA.chauffeurs);
+  populateTrav('t-apport', TRAV_DATA.apports);
+  populateTrav('t-produit', TRAV_DATA.produits);
+  populateTrav('t-unite', TRAV_DATA.unites);
+
+  // URL config
+  const url = localStorage.getItem('gasTravUrl') || '';
+  const el = document.getElementById('trav-gas-url');
+  if (el) el.value = url;
+
+  buildTravAccordions();
+  travTab('saisie');
+}
+
+function travTab(tab) {
+  ['saisie','historique','config'].forEach(t => {
+    document.getElementById('trav-' + t).style.display = t === tab ? '' : 'none';
+    document.getElementById('ttab-' + t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'historique') renderTravauxHist();
+}
+
+function calcSurfaceTrav() {
+  const p1 = document.getElementById('t-parc1').value;
+  const p2 = document.getElementById('t-parc2').value;
+  const p3 = document.getElementById('t-parc3').value;
+  let total = 0;
+  [p1,p2,p3].forEach(p => { if (p && TRAV_DATA.surfaces[p]) total += TRAV_DATA.surfaces[p]; });
+  document.getElementById('t-surface').value = total > 0 ? total.toFixed(2) + ' Ha' : '';
+}
+
+function getSurfaceNumTrav() {
+  const p1 = document.getElementById('t-parc1').value;
+  const p2 = document.getElementById('t-parc2').value;
+  const p3 = document.getElementById('t-parc3').value;
+  let total = 0;
+  [p1,p2,p3].forEach(p => { if (p && TRAV_DATA.surfaces[p]) total += TRAV_DATA.surfaces[p]; });
+  return total > 0 ? parseFloat(total.toFixed(2)) : '';
+}
+
+function enregistrerTravaux() {
+  const date = document.getElementById('t-date').value;
+  const intervention = document.getElementById('t-intervention').value;
+  if (!date) { showToast('⚠️ Renseigne une date !', 'error'); return; }
+  if (!intervention) { showToast('⚠️ Renseigne une intervention !', 'error'); return; }
+
+  const entry = {
+    id: Date.now(),
+    date,
+    parc1: document.getElementById('t-parc1').value,
+    parc2: document.getElementById('t-parc2').value,
+    parc3: document.getElementById('t-parc3').value,
+    surface: getSurfaceNumTrav(),
+    culture: document.getElementById('t-culture').value,
+    intervention,
+    outil: document.getElementById('t-outil').value,
+    chauffeur: document.getElementById('t-chauffeur').value,
+    apport: document.getElementById('t-apport').value,
+    produit: document.getElementById('t-produit').value,
+    qteha: parseFloat(document.getElementById('t-qteha').value) || '',
+    unite: document.getElementById('t-unite').value,
+    tonnes: parseFloat(document.getElementById('t-tonnes').value) || '',
+    status: 'pending',
+    createdAt: new Date().toISOString()
+  };
+
+  const entries = getTravauxEntries();
+  entries.unshift(entry);
+  localStorage.setItem('travaux', JSON.stringify(entries));
+
+  showToast('✅ Travaux enregistrés !', 'success');
+  resetTravForm();
+  updateSyncBar();
+  if (navigator.onLine) syncTravEntry(entry);
+}
+
+function resetTravForm() {
+  document.getElementById('t-date').value = new Date().toISOString().split('T')[0];
+  ['t-parc1','t-parc2','t-parc3','t-culture','t-intervention','t-outil','t-chauffeur','t-apport','t-produit','t-unite'].forEach(id => {
+    document.getElementById(id).selectedIndex = 0;
+  });
+  document.getElementById('t-qteha').value = '';
+  document.getElementById('t-tonnes').value = '';
+  document.getElementById('t-surface').value = '';
+}
+
+function renderTravauxHist() {
+  const list = document.getElementById('travaux-hist-list');
+  const entries = getTravauxEntries();
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty"><div class="icon">🚜</div><p>Aucune entrée travaux</p></div>';
+    return;
+  }
+  list.innerHTML = entries.map(e => {
+    const d = new Date(e.date + 'T12:00:00');
+    const dateStr = d.toLocaleDateString('fr-FR', {weekday:'short',day:'numeric',month:'short'});
+    const parc = [e.parc1,e.parc2,e.parc3].filter(Boolean).join(' · ');
+    return `<div class="entry-card ${e.status}">
+      <span class="status-badge ${e.status}">${e.status==='synced'?'✓ Sync':'⏳ Attente'}</span>
+      <div class="entry-date">${dateStr}</div>
+      <div class="entry-title">${e.intervention||'—'} · ${e.outil||'—'}</div>
+      <div class="entry-meta">${parc||'—'}${e.surface?' · '+e.surface+' Ha':''}</div>
+      ${e.culture ? `<div class="entry-meta">Culture : ${e.culture}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function saveTravConfig() {
+  const url = document.getElementById('trav-gas-url').value.trim();
+  localStorage.setItem('gasTravUrl', url);
+  showToast('✅ Config enregistrée !', 'success');
+}
+
+async function syncTravEntry(entry) {
+  const url = localStorage.getItem('gasTravUrl');
+  if (!url) return;
+  try {
+    await fetch(url, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry)
+    });
+    const entries = getTravauxEntries();
+    const idx = entries.findIndex(e => e.id === entry.id);
+    if (idx >= 0) { entries[idx].status = 'synced'; localStorage.setItem('travaux', JSON.stringify(entries)); }
+    updateSyncBar();
+  } catch(e) {}
+}
+
+// Accordéons listes travaux (parcelles, cultures, etc.)
+const TRAV_LIST_CONFIG = [
+  { key: 'parcelles', label: '🌿 Parcelles', hasSurf: true },
+  { key: 'cultures',  label: '🌾 Cultures',  hasSurf: false },
+  { key: 'interventions', label: '⚙️ Interventions', hasSurf: false },
+  { key: 'outils',    label: '🔧 Outils',    hasSurf: false },
+  { key: 'chauffeurs',label: '👤 Chauffeurs', hasSurf: false },
+];
+
+function buildTravAccordions() {
+  const c = document.getElementById('trav-accord-container');
+  if (!c) return;
+  c.innerHTML = '<div class="section-label">📋 Gérer les listes</div>' +
+    TRAV_LIST_CONFIG.map(cfg => `
+      <div class="accord">
+        <div class="accord-hdr" onclick="toggleAccord('trav-body-${cfg.key}')">
+          <span>${cfg.label}</span><span class="chev">▼</span>
+        </div>
+        <div class="accord-body" id="trav-body-${cfg.key}"></div>
+      </div>
+    `).join('');
+}
+
+function renderTravauxRecent() { /* kept for home tile */ }
+
+
+// ══════════════════════════════════════════
+//  FABRIQUE D'ALIMENT
+// ══════════════════════════════════════════
+let selectedAliments = new Set();
+
+function initFabrique() {
+  const now = new Date();
+  document.getElementById('fab-date').value = now.toISOString().split('T')[0];
+
+  // Année selector bilan
+  const anneeEl = document.getElementById('bilan-annee');
+  if (!anneeEl.options.length) {
+    for (let y = now.getFullYear(); y >= 2024; y--) {
+      const o = document.createElement('option');
+      o.value = y; o.textContent = y;
+      anneeEl.appendChild(o);
+    }
+    // Mois courant par défaut
+    document.getElementById('bilan-mois').value = now.getMonth();
+  }
+
+  renderAlimentToggles();
+  renderFormuleEditor();
+  const fabUrl = localStorage.getItem('gasFabUrl') || '';
+  const fabUrlEl = document.getElementById('fab-gas-url');
+  if (fabUrlEl) fabUrlEl.value = fabUrl;
+  fabTab('saisie');
+}
+
+function fabTab(tab) {
+  ['saisie','bilan','config'].forEach(t => {
+    document.getElementById('fab-' + t).style.display = t === tab ? '' : 'none';
+    document.getElementById('ftab-' + t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'bilan') renderBilan();
+  if (tab === 'config') renderFormuleEditor();
+}
+
+function renderAlimentToggles() {
+  const formules = getFormules();
+  const container = document.getElementById('aliment-toggles');
+  container.innerHTML = Object.entries(formules).map(([key, f]) => `
+    <div class="aliment-toggle ${selectedAliments.has(key)?'selected':''}" id="toggle-${key}" onclick="toggleAliment('${key}')">
+      <div class="a-icon">${f.icon}</div>
+      <div class="a-label">${f.label}</div>
+      <div class="a-kg">${f.batch} kg/batch</div>
+    </div>
+  `).join('');
+}
+
+function toggleAliment(key) {
+  if (selectedAliments.has(key)) {
+    selectedAliments.delete(key);
+  } else {
+    selectedAliments.add(key);
+  }
+  document.getElementById('toggle-' + key).classList.toggle('selected', selectedAliments.has(key));
+  updateIngredients();
+}
+
+function updateIngredients() {
+  const formules = getFormules();
+  const container = document.getElementById('fab-ingredients');
+
+  if (!selectedAliments.size) {
+    container.innerHTML = '<div style="text-align:center;color:var(--gris);font-size:13px;padding:8px;">Sélectionne un ou plusieurs aliments</div>';
+    return;
+  }
+
+  // Calculer les totaux par ingrédient
+  const totaux = {};
+  INGREDIENTS.forEach(ing => totaux[ing] = 0);
+
+  selectedAliments.forEach(key => {
+    const f = formules[key];
+    INGREDIENTS.forEach(ing => {
+      totaux[ing] += (f.ingredients[ing] || 0) * f.batch;
+    });
+  });
+
+  const totalKg = Object.values(totaux).reduce((a,b)=>a+b, 0);
+
+  container.innerHTML = `
+    ${INGREDIENTS.filter(ing => totaux[ing] > 0).map(ing => `
+      <div class="ing-row">
+        <span class="ing-name">${ING_LABELS[ing]}</span>
+        <span class="ing-kg">${Math.round(totaux[ing] * 10)/10} kg</span>
+      </div>
+    `).join('')}
+    <div class="ing-row" style="margin-top:4px;border-top:2px solid var(--vert);">
+      <span class="ing-name" style="color:var(--vert)">Total</span>
+      <span class="ing-kg">${Math.round(totalKg * 10)/10} kg</span>
+    </div>
+  `;
+}
+
+function enregistrerFabrique() {
+  const date = document.getElementById('fab-date').value;
+  if (!date) { showToast('⚠️ Renseigne une date !', 'error'); return; }
+  if (!selectedAliments.size) { showToast('⚠️ Sélectionne au moins un aliment !', 'error'); return; }
+
+  const formules = getFormules();
+  const totaux = {};
+  INGREDIENTS.forEach(ing => totaux[ing] = 0);
+  const alimentsListe = [];
+
+  selectedAliments.forEach(key => {
+    const f = formules[key];
+    alimentsListe.push(f.label);
+    INGREDIENTS.forEach(ing => {
+      totaux[ing] += (f.ingredients[ing] || 0) * f.batch;
+    });
+  });
+
+  const entry = {
+    id: Date.now(),
+    date,
+    aliments: [...selectedAliments],
+    alimentsListe,
+    totaux,
+    batchTotal: Object.values(totaux).reduce((a,b)=>a+b,0),
+    status: 'pending',
+    createdAt: new Date().toISOString()
+  };
+
+  const entries = getFabEntries();
+  entries.unshift(entry);
+  saveFabEntries(entries);
+
+  showToast('✅ Fabrication enregistrée !', 'success');
+
+  // Reset
+  selectedAliments.clear();
+  renderAlimentToggles();
+  updateIngredients();
+  document.getElementById('fab-date').value = new Date().toISOString().split('T')[0];
+  updateSyncBar();
+
+  // Sync si réseau
+  if (navigator.onLine && localStorage.getItem('gasUrl')) syncFabEntry(entry);
+}
+
+// ══════════════════════════════════════════
+//  BILAN FABRIQUE
+// ══════════════════════════════════════════
+function renderBilan() {
+  const entries = getFabEntries();
+  const moisEl = document.getElementById('bilan-mois');
+  const anneeEl = document.getElementById('bilan-annee');
+  if (!moisEl || !anneeEl) return;
+
+  const mois = moisEl.value;
+  const annee = parseInt(anneeEl.value);
+
+  const filtered = entries.filter(e => {
+    const d = new Date(e.date + 'T12:00');
+    if (d.getFullYear() !== annee) return false;
+    if (mois !== 'all' && d.getMonth() !== parseInt(mois)) return false;
+    return true;
+  });
+
+  const totaux = {};
+  INGREDIENTS.forEach(ing => totaux[ing] = 0);
+  const parAliment = {};
+
+  filtered.forEach(e => {
+    INGREDIENTS.forEach(ing => totaux[ing] += (e.totaux[ing] || 0));
+    e.aliments.forEach(a => { parAliment[a] = (parAliment[a] || 0) + 1; });
+  });
+
+  const formules = getFormules();
+  const container = document.getElementById('bilan-content');
+
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty"><div class="icon">📊</div><p>Aucune fabrication sur cette période</p></div>';
+    return;
+  }
+
+  const moisLabels = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+
+  container.innerHTML = `
+    <div class="stat-row" style="margin-bottom:12px;">
+      <div class="stat-chip"><div class="sv">${filtered.length}</div><div class="sl">Fabrications</div></div>
+      <div class="stat-chip"><div class="sv">${Math.round(Object.values(totaux).reduce((a,b)=>a+b,0))}</div><div class="sl">kg total</div></div>
+    </div>
+
+    <div class="section-label">🌽 Par matière première</div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="bilan-table">
+        <tr>
+          <th>Ingrédient</th>
+          <th style="text-align:right">kg total</th>
+          <th style="text-align:right">Tonnes</th>
+        </tr>
+        ${INGREDIENTS.filter(ing => totaux[ing] > 0).map(ing => `
+          <tr>
+            <td>${ING_LABELS[ing]}</td>
+            <td style="text-align:right">${Math.round(totaux[ing])}</td>
+            <td style="text-align:right" class="total">${(totaux[ing]/1000).toFixed(2)} t</td>
+          </tr>
+        `).join('')}
+        <tr>
+          <td><strong>Total</strong></td>
+          <td style="text-align:right"><strong>${Math.round(Object.values(totaux).reduce((a,b)=>a+b,0))}</strong></td>
+          <td style="text-align:right" class="total">${(Object.values(totaux).reduce((a,b)=>a+b,0)/1000).toFixed(2)} t</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section-label">🏭 Par type d'aliment</div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="bilan-table">
+        <tr><th>Aliment</th><th style="text-align:right">Fabrications</th></tr>
+        ${Object.entries(parAliment).map(([key, nb]) => `
+          <tr>
+            <td>${formules[key]?.icon || ''} ${formules[key]?.label || key}</td>
+            <td style="text-align:right" class="total">${nb}x</td>
+          </tr>
+        `).join('')}
+      </table>
+    </div>
+
+    <div class="section-label">📋 Détail des fabrications</div>
+    ${filtered.slice(0,20).map(e => {
+      const d = new Date(e.date + 'T12:00');
+      return `<div class="entry-card">
+        <div class="entry-date">${d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})}</div>
+        <div class="entry-title">${e.alimentsListe.join(' + ')}</div>
+        <div class="entry-meta">${Math.round(e.batchTotal)} kg — Maïs: ${Math.round(e.totaux.mais||0)} kg · Soja: ${Math.round(e.totaux.soja||0)} kg</div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+// ══════════════════════════════════════════
+//  ÉDITEUR DE FORMULES
+// ══════════════════════════════════════════
+function renderFormuleEditor() {
+  const formules = getFormules();
+  const container = document.getElementById('formules-editor');
+
+  container.innerHTML = Object.entries(formules).map(([key, f]) => `
+    <div class="accord">
+      <div class="accord-hdr" onclick="toggleAccord('form-${key}')">
+        <span>${f.icon} ${f.label}</span>
+        <span class="chev">▼</span>
+      </div>
+      <div class="accord-body" id="form-${key}">
+        <div class="formule-editor">
+          <div class="formule-row">
+            <label>📦 Batch total (kg)</label>
+            <input type="number" id="${key}-batch" value="${f.batch}" step="1">
+            <span class="unit">kg</span>
+          </div>
+          ${INGREDIENTS.map(ing => `
+            <div class="formule-row">
+              <label>${ING_LABELS[ing]}</label>
+              <input type="number" id="${key}-${ing}" value="${Math.round(f.ingredients[ing]*1000)/10}" step="0.1" min="0" max="100">
+              <span class="unit">%</span>
+            </div>
+          `).join('')}
+          <div class="formule-total" id="${key}-total">
+            Total : ${Math.round(Object.values(f.ingredients).reduce((a,b)=>a+b,0)*1000)/10}%
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Live update totals
+  Object.keys(formules).forEach(key => {
+    INGREDIENTS.forEach(ing => {
+      const el = document.getElementById(key + '-' + ing);
+      if (el) el.addEventListener('input', () => updateFormuleTotal(key));
+    });
+  });
+}
+
+function updateFormuleTotal(key) {
+  let total = 0;
+  INGREDIENTS.forEach(ing => {
+    const el = document.getElementById(key + '-' + ing);
+    if (el) total += parseFloat(el.value) || 0;
+  });
+  const el = document.getElementById(key + '-total');
+  if (el) {
+    el.textContent = 'Total : ' + Math.round(total * 10) / 10 + '%';
+    el.style.color = Math.abs(total - 100) < 0.5 ? 'var(--vert)' : 'var(--rouge)';
+  }
+}
+
+function saveFabConfig() {
+  const url = document.getElementById('fab-gas-url').value.trim();
+  localStorage.setItem('gasFabUrl', url);
+  showToast('✅ URL fabrique enregistrée !', 'success');
+}
+
+function sauvegarderFormules() {
+  const formules = getFormules();
+  Object.keys(formules).forEach(key => {
+    formules[key].batch = parseFloat(document.getElementById(key + '-batch').value) || formules[key].batch;
+    INGREDIENTS.forEach(ing => {
+      const val = parseFloat(document.getElementById(key + '-' + ing).value) || 0;
+      formules[key].ingredients[ing] = val / 100;
+    });
+  });
+  localStorage.setItem('formules', JSON.stringify(formules));
+  showToast('✅ Formules sauvegardées !', 'success');
+  renderAlimentToggles();
+  updateIngredients();
+}
+
+// ══════════════════════════════════════════
+//  BILAN FOURRAGER
+// ══════════════════════════════════════════
+const FOUR_FIELDS = [
+  { id: 'foin-rondes',    label: '🌾 Foin rondes 150',       unit: 'boules' },
+  { id: 'foin-achete',    label: '🛒 Foin rondes achetées',   unit: 'boules' },
+  { id: 'foin-carrees',   label: '🌾 Foin bottes carrées',    unit: 'bottes' },
+  { id: 'enrub-droite',   label: '🎁 Enrubannés couloir droite', unit: 'unités', couloir: 'droite' },
+  { id: 'enrub-gauche',   label: '🎁 Enrubannés couloir gauche', unit: 'unités', couloir: 'gauche' },
+  { id: 'enrub-petit',    label: '🎁 Enrubannés petit couloir',  unit: 'unités', couloir: 'petit' },
+  { id: 'sorgho',         label: '🌱 Sorgho',                 unit: 'unités' },
+  { id: 'luzerne',        label: '🌱 Luzerne',                unit: 'unités' },
+  { id: 'paille-rondes',  label: '🌿 Paille bottes rondes',   unit: 'bottes' },
+  { id: 'paille-carrees', label: '🌿 Paille bottes carrées',  unit: 'bottes' },
+];
+
+function getFourEntries() {
+  try { return JSON.parse(localStorage.getItem('four_entries') || '[]'); } catch(e) { return []; }
+}
+function saveFourEntries(e) { localStorage.setItem('four_entries', JSON.stringify(e)); }
+
+const FOUR_CAP_DEFAULT = {
+  'foin-rondes':0,'foin-achete':0,'foin-carrees':0,
+  'enrub-droite':100,'enrub-gauche':100,'enrub-petit':50,
+  'sorgho':0,'luzerne':0,
+  'paille-rondes':0,'paille-carrees':0
+};
+
+function getFourCapacites() {
+  try { return { ...FOUR_CAP_DEFAULT, ...JSON.parse(localStorage.getItem('four_capacites') || '{}') }; }
+  catch(e) { return { ...FOUR_CAP_DEFAULT }; }
+}
+
+function initFourrager() {
+  document.getElementById('four-date').value = new Date().toISOString().split('T')[0];
+  const url = localStorage.getItem('gasFourUrl') || '';
+  const urlEl = document.getElementById('four-gas-url');
+  if (urlEl) urlEl.value = url;
+  const cap = getFourCapacites();
+  Object.keys(FOUR_CAP_DEFAULT).forEach(key => {
+    const el = document.getElementById('four-max-' + key);
+    if (el) el.value = cap[key] || 0;
+  });
+  fourTab('saisie');
+}
+
+function fourTab(tab) {
+  ['saisie','stock','config'].forEach(t => {
+    document.getElementById('four-' + t).style.display = t === tab ? '' : 'none';
+    document.getElementById('ftab-f-' + t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'stock') renderFourStock();
+}
+
+function enregistrerFourrager() {
+  const date = document.getElementById('four-date').value;
+  if (!date) { showToast('⚠️ Renseigne une date !', 'error'); return; }
+
+  const entry = { id: Date.now(), date, status: 'pending', createdAt: new Date().toISOString() };
+  FOUR_FIELDS.forEach(f => {
+    entry[f.id] = parseInt(document.getElementById('four-' + f.id).value) || 0;
+  });
+  entry.obs = document.getElementById('four-obs').value;
+
+  const entries = getFourEntries();
+  entries.unshift(entry);
+  saveFourEntries(entries);
+
+  showToast('✅ Stock enregistré !', 'success');
+  updateSyncBar();
+
+  // Reset fields
+  FOUR_FIELDS.forEach(f => { document.getElementById('four-' + f.id).value = ''; });
+  document.getElementById('four-obs').value = '';
+  document.getElementById('four-date').value = new Date().toISOString().split('T')[0];
+
+  if (navigator.onLine) syncFourEntry(entry);
+}
+
+function renderFourStock() {
+  const entries = getFourEntries();
+  const container = document.getElementById('four-stock-content');
+  if (!entries.length) {
+    container.innerHTML = '<div class="empty"><div class="icon">📦</div><p>Aucun inventaire enregistré</p></div>';
+    return;
+  }
+
+  const last = entries[0];
+  const d = new Date(last.date + 'T12:00');
+  const dateStr = d.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  const cap = getFourCapacites();
+
+  function progressBar(val, max, label, unit='') {
+    const pct = max > 0 ? Math.min(100, Math.round(val/max*100)) : 0;
+    const color = pct > 60 ? 'var(--vert)' : pct > 30 ? 'var(--orange)' : 'var(--rouge)';
+    const showBar = max > 0;
+    return `<div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:13px;font-weight:600;">
+        <span>${label}</span>
+        <span style="color:var(--vert);font-size:15px;font-weight:800;">${val}${unit ? ' '+unit : ''}</span>
+      </div>
+      ${showBar ? `
+        <div style="background:var(--border);border-radius:6px;height:8px;margin-top:5px;">
+          <div style="background:${color};width:${pct}%;height:8px;border-radius:6px;"></div>
+        </div>
+        <div style="font-size:11px;color:var(--gris);text-align:right;margin-top:2px;">${pct}% — ${val} / ${max}</div>
+      ` : ''}
+    </div>`;
+  }
+
+  const totalEnrub = (last['enrub-droite']||0) + (last['enrub-gauche']||0) + (last['enrub-petit']||0);
+
+  container.innerHTML = `
+    <div class="card" style="border-left:4px solid var(--vert-clair);">
+      <div class="card-sub">Dernier inventaire</div>
+      <div class="card-title">${dateStr}</div>
+    </div>
+
+    <div class="section-label">🌾 Foin</div>
+    <div class="card">
+      ${progressBar(last['foin-rondes']||0, cap['foin-rondes'], 'Boules rondes 150', 'boules')}
+      ${progressBar(last['foin-achete']||0, cap['foin-achete'], 'Rondes achetées', 'boules')}
+      ${progressBar(last['foin-carrees']||0, cap['foin-carrees'], 'Bottes carrées', 'bottes')}
+    </div>
+
+    <div class="section-label">🎁 Enrubannés</div>
+    <div class="card">
+      ${progressBar(last['enrub-droite']||0, cap['enrub-droite'], 'Couloir droite')}
+      ${progressBar(last['enrub-gauche']||0, cap['enrub-gauche'], 'Couloir gauche')}
+      ${progressBar(last['enrub-petit']||0, cap['enrub-petit'], 'Petit couloir')}
+      <div style="padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--vert);">
+        <span>Total enrubannés</span><span>${totalEnrub}</span>
+      </div>
+    </div>
+
+    <div class="section-label">🌱 Autres fourrages</div>
+    <div class="card">
+      ${progressBar(last['sorgho']||0, cap['sorgho'], 'Sorgho')}
+      ${progressBar(last['luzerne']||0, cap['luzerne'], 'Luzerne')}
+    </div>
+
+    <div class="section-label">🌿 Paille</div>
+    <div class="card">
+      ${progressBar(last['paille-rondes']||0, cap['paille-rondes'], 'Bottes rondes', 'bottes')}
+      ${progressBar(last['paille-carrees']||0, cap['paille-carrees'], 'Bottes carrées', 'bottes')}
+    </div>
+
+    ${last.obs ? `<div class="card"><div class="card-sub">📝 Observations</div><div style="font-size:14px;margin-top:4px;">${last.obs}</div></div>` : ''}
+
+    <div class="section-label">📋 Historique</div>
+    ${entries.slice(0,5).map(e => {
+      const d2 = new Date(e.date + 'T12:00');
+      const total = FOUR_FIELDS.reduce((acc,f) => acc + (e[f.id]||0), 0);
+      return `<div class="entry-card ${e.status}">
+        <span class="status-badge ${e.status}">${e.status==='synced'?'✓':'⏳'}</span>
+        <div class="entry-date">${d2.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}</div>
+        <div class="entry-title">Inventaire fourrager</div>
+        <div class="entry-meta">Foin: ${(e['foin-rondes']||0)+(e['foin-achete']||0)} · Enrubannés: ${(e['enrub-droite']||0)+(e['enrub-gauche']||0)+(e['enrub-petit']||0)} · Paille: ${(e['paille-rondes']||0)+(e['paille-carrees']||0)}</div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+function saveFourConfig() {
+  const url = document.getElementById('four-gas-url').value.trim();
+  localStorage.setItem('gasFourUrl', url);
+  showToast('✅ URL fourrager enregistrée !', 'success');
+}
+
+function saveFourCapacites() {
+  const cap = {};
+  Object.keys(FOUR_CAP_DEFAULT).forEach(key => {
+    const el = document.getElementById('four-max-' + key);
+    cap[key] = el ? (parseInt(el.value) || 0) : FOUR_CAP_DEFAULT[key];
+  });
+  localStorage.setItem('four_capacites', JSON.stringify(cap));
+  showToast('✅ Capacités enregistrées !', 'success');
+}
+
+async function syncFourEntry(entry) {
+  const url = localStorage.getItem('gasFourUrl');
+  if (!url) return;
+  try {
+    await fetch(url, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry)
+    });
+    const entries = getFourEntries();
+    const idx = entries.findIndex(e => e.id === entry.id);
+    if (idx >= 0) { entries[idx].status = 'synced'; saveFourEntries(entries); }
+    updateSyncBar();
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════
+//  ACCORDÉONS
+// ══════════════════════════════════════════
+function toggleAccord(id) {
+  const body = document.getElementById(id);
+  const hdr = body.previousElementSibling;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  hdr.classList.toggle('open', !isOpen);
+}
+
+// ══════════════════════════════════════════
+//  SYNC
+// ══════════════════════════════════════════
+function updateSyncBar() {
+  const fabPending  = getFabEntries().filter(e => e.status === 'pending').length;
+  const travPending = getTravauxEntries().filter(e => e.status === 'pending').length;
+  const fourPending = getFourEntries().filter(e => e.status === 'pending').length;
+  const total = fabPending + travPending + fourPending;
+  const bar = document.getElementById('syncBar');
+  const txt = document.getElementById('syncText');
+  if (total > 0) {
+    bar.classList.add('visible');
+    txt.textContent = total + ' entrée(s) non synchronisée(s)';
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+async function syncFabEntry(entry) {
+  const url = localStorage.getItem('gasFabUrl');
+  if (!url) return;
+  try {
+    await fetch(url, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry)
+    });
+    const entries = getFabEntries();
+    const idx = entries.findIndex(e => e.id === entry.id);
+    if (idx >= 0) { entries[idx].status = 'synced'; saveFabEntries(entries); }
+    updateSyncBar();
+  } catch(e) {}
+}
+
+async function syncAll() {
+  const fab  = getFabEntries().filter(e => e.status === 'pending');
+  const trav = getTravauxEntries().filter(e => e.status === 'pending');
+  const four = getFourEntries().filter(e => e.status === 'pending');
+  for (const e of fab)  { await syncFabEntry(e);  await new Promise(r=>setTimeout(r,300)); }
+  for (const e of trav) { await syncTravEntry(e); await new Promise(r=>setTimeout(r,300)); }
+  for (const e of four) { await syncFourEntry(e); await new Promise(r=>setTimeout(r,300)); }
+  showToast('✅ Synchronisé !', 'success');
+  updateSyncBar();
+}
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+function init() {
+  const now = new Date();
+  document.getElementById('headerDate').textContent =
+    now.toLocaleDateString('fr-FR', { weekday:'short', day:'numeric', month:'long' });
+  renderHome();
+  updateSyncBar();
+}
+
+window.addEventListener('online', () => {
+  const fab = getFabEntries().filter(e => e.status === 'pending');
+  if (fab.length) { showToast('📶 Réseau — synchronisation…'); setTimeout(syncAll, 1000); }
+});
+
+init();
+</script>
+</body>
+</html>
